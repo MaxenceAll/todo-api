@@ -47,14 +47,20 @@ app.post("/:table", async (req,res) =>
     res.json(result.length == 1 ? result.pop() : null);
 });
 
-app.put("/task/:id", async (req,res) =>
+app.put("/:table/:id", async (req,res) =>
 {
-    // const body = req.body;
-    // const id = req.params.id; 
-    // const sql = `UPDATE task SET title="${body.title}", description="${body.description}, id_Todo=${body.id_Todo} WHERE id="${id}"`;
-    // const result = await query(sql);
-    // res.json({data: result, result: true, message:`Modification de la task ayant id='${body.id}'`});
-});
+    const { table } = req.params;
+    const { body } = req;
+    const id = req.params.id; 
+    for(const key in body){
+        if(typeof body[key] == "string")
+            body[key] = body[key].replace(/'/g, "\\'");
+    }
+    const updates = Object.keys(body).map(key => `${key} = '${body[key]}'`).join(", ");
+    const sqlUpdate = `UPDATE ${table} SET ${updates} WHERE id = ${id}`;
+    const updateResult = await query(sqlUpdate);
+    res.json(updateResult);
+}); 
 
 app.patch("/:table/:id", async (req,res) =>{
     //soft delete de la category ayant l'id:id
