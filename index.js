@@ -1,11 +1,12 @@
 const {query} = require("./api/services/database.service");
 const { db } = require("./api/configs/dev.config");
 const express = require("express");
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-
+app.use(cors());
 app.get("/", async (req,res) =>
 {    
     const result = await query("SHOW TABLES");
@@ -73,6 +74,8 @@ app.put('/:table/:id', async (req, res) => {
     const { table, id } = req.params;
     const { body } = req;
     for(const key in body){
+        if (key == "is_deleted")
+            delete body[key];
         if(typeof body[key] == "string")
             body[key] = body[key].replace(/'/g, "\\'");
     }
@@ -103,7 +106,7 @@ app.put('/:table/:id', async (req, res) => {
 
 app.patch('/:table/:id', async (req, res) => { 
     const { table, id } = req.params;
-    const sqlUpdate = `UPDATE ${table} SET is_deleted = 1 WHERE id = ${id}`;
+    const sqlUpdate = `UPDATE ${table} SET is_deleted = 1 WHERE id = ${id} AND is_deleted = 0`;
     await query(sqlUpdate)
     .then(updateResult => {
         const sqlSelect = `SELECT * FROM ${table} WHERE is_deleted = 1 AND id = ${id}`;
