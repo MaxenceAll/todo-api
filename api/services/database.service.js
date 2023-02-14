@@ -1,7 +1,8 @@
 const mysql = require ("mysql2/promise");
-const dotenv = require("dotenv");
-dotenv.config();
-const config = require (`../configs/${process.env.NODE_ENV}.config`);
+// const dotenv = require("dotenv");
+// dotenv.config();
+// const config = require (`../configs/${process.env.NODE_ENV}.config`);
+const config = require("../config");
 
 let db; 
 async function connect(){

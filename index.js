@@ -1,5 +1,5 @@
 const {query} = require("./api/services/database.service");
-const { db } = require("./api/configs/dev.config");
+const { db } = require("./api/config");
 const express = require("express");
 const cors = require("cors");
 
@@ -8,16 +8,24 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cors());
 
+const bcrypt = require("bcrypt");
+const config = require("./api/config");
+
 
 app.post('/login', async (req, res) => {
     const { body } = req;
     const sql = `SELECT * FROM customer WHERE is_deleted = 0 AND email = "${body.email}"`;
     await query(sql)
-        .then((json) => {
+        .then( async (json) => {
             console.log(json);
             const user = json.length === 1 ? json.pop() : null;
             console.log(user);
-            if (user && user.pincode === body.pincode){
+            if (user){
+
+                const pincodeMatch = await bcrypt.compare(body.pincode, config.hash.prefix + user.pincode);
+                if (!pincodeMatch){
+                    throw new Error ("bad login!");
+                }
                 const {id, email} = user;
                 const data = {id, email};
                 res.json({data, result: true, message: `Login OK`});
