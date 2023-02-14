@@ -7,11 +7,37 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cors());
+
+
+app.post('/login', async (req, res) => {
+    const { body } = req;
+    const sql = `SELECT * FROM customer WHERE is_deleted = 0 AND email = "${body.email}"`;
+    await query(sql)
+        .then((json) => {
+            console.log(json);
+            const user = json.length === 1 ? json.pop() : null;
+            console.log(user);
+            if (user && user.pincode === body.pincode){
+                const {id, email} = user;
+                const data = {id, email};
+                res.json({data, result: true, message: `Login OK`});
+            } else {
+                throw new Error("Bad login");
+            }
+        })
+        .catch((err) => {
+            res.json({data: null, result: false, message: err.message});
+        });
+});
+
 app.get("/", async (req,res) =>
 {    
     const result = await query("SHOW TABLES");
     res.json(result);
 });
+
+
+
 
 app.get('/:table', async (req, res) => { 
     const { table } = req.params;
