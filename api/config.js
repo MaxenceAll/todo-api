@@ -13,6 +13,9 @@ const config = {
         hash: {
             prefix: "$2b$08$"
         },
+        token: {
+            secret: "Wp].p77qJiLV)jMw6!GXAhzyi(tTaciU"
+        }
     },
 
     prod: {

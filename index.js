@@ -6,11 +6,31 @@ const cors = require("cors");
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use(cors());
+app.use(cors({origin: ["http://localhost:3000"], credentials: true }));
 
 const bcrypt = require("bcrypt");
 const config = require("./api/config");
 
+const jwt = require("jsonwebtoken");
+
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
+app.get("/auth", async (req, res) => {
+    const auth = req?.cookies?.auth;
+    if (auth){
+        const data = jwt.verify(auth, config.token.secret);
+        if (data){
+            res.json({ data, result:true, message: `Auth OK`});
+        }
+        else {
+            res.json({ data:null, result: false, message: `BAD auth, verify=OK`});
+        }                    
+    }
+    else{
+        res.json({ data: null, result: false, message: `BAD auth, verify KO`})
+    }
+});
 
 app.post('/login', async (req, res) => {
     const { body } = req;
@@ -28,7 +48,8 @@ app.post('/login', async (req, res) => {
                 }
                 const {id, email} = user;
                 const data = {id, email};
-                res.json({data, result: true, message: `Login OK`});
+                const token = jwt.sign(data, config.token.secret)
+                res.json({data, result: true, message: `Login OK`, token});
             } else {
                 throw new Error("Bad login");
             }
