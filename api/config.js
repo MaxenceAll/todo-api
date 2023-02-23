@@ -15,6 +15,10 @@ const config = {
         },
         token: {
             secret: "Wp].p77qJiLV)jMw6!GXAhzyi(tTaciU"
+        },
+        authorization:{
+            secret: "pf[cX]RnE7!.2uNj/hkaPzfC./jMKIIn",
+            keys: ["!Ml_MOAUG8X)kTkbkuF6]JkyRAO/SD-K"]
         }
     },
 

@@ -16,48 +16,55 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
-app.get("/auth", async (req, res) => {
-    const auth = req?.cookies?.auth;
-    if (auth){
-        const data = jwt.verify(auth, config.token.secret);
-        if (data){
-            res.json({ data, result:true, message: `Auth OK`});
-        }
-        else {
-            res.json({ data:null, result: false, message: `BAD auth, verify=OK`});
-        }                    
-    }
-    else{
-        res.json({ data: null, result: false, message: `BAD auth, verify KO`})
-    }
-});
 
-app.post('/login', async (req, res) => {
-    const { body } = req;
-    const sql = `SELECT * FROM customer WHERE is_deleted = 0 AND email = "${body.email}"`;
-    await query(sql)
-        .then( async (json) => {
-            console.log(json);
-            const user = json.length === 1 ? json.pop() : null;
-            console.log(user);
-            if (user){
+// Verif de la clé pour verif si acces à l'API ou pas
+const accesMiddleware = require('./api/middleware/acces.middleware')
+app.use(accesMiddleware);
 
-                const pincodeMatch = await bcrypt.compare(body.pincode, config.hash.prefix + user.pincode);
-                if (!pincodeMatch){
-                    throw new Error ("bad login!");
-                }
-                const {id, email} = user;
-                const data = {id, email};
-                const token = jwt.sign(data, config.token.secret)
-                res.json({data, result: true, message: `Login OK`, token});
-            } else {
-                throw new Error("Bad login");
-            }
-        })
-        .catch((err) => {
-            res.json({data: null, result: false, message: err.message});
-        });
-});
+// Verif de l'authentification (le login est-il OK ? verif avec JWT)
+const authRouter = require('./api/routers/auth.router');
+app.use(authRouter);
+// app.get("/auth", async (req, res) => {
+//   const authCookie = req?.cookies?.auth;
+//   try {
+//     if (!authCookie) {
+//       throw new Error("Bad Auth");
+//     }
+//     const data = jwt.verify(authCookie, config.token.secret);
+//     if (!data) {
+//       throw new Error("Bad Auth");
+//     }
+//     res.json({ data, result: true, message: `Auth OK` });
+//   } catch {
+//     res.json({ data: null, result: false, message: `Bad Auth` });
+//   }
+// });
+// app.post('/login', async (req, res) => {
+//     const { body } = req;
+//     const sql = `SELECT * FROM customer WHERE is_deleted = 0 AND email = "${body.email}"`;
+//     await query(sql)
+//         .then( async (json) => {
+//             console.log(json);
+//             const user = json.length === 1 ? json.pop() : null;
+//             console.log(user);
+//             if (user){
+
+//                 const pincodeMatch = await bcrypt.compare(body.pincode, config.hash.prefix + user.pincode);
+//                 if (!pincodeMatch){
+//                     throw new Error ("bad login!");
+//                 }
+//                 const {id, email} = user;
+//                 const data = {id, email};
+//                 const token = jwt.sign(data, config.token.secret)
+//                 res.json({data, result: true, message: `Login OK`, token});
+//             } else {
+//                 throw new Error("Bad login");
+//             }
+//         })
+//         .catch((err) => {
+//             res.json({data: null, result: false, message: err.message});
+//         });
+// });
 
 app.get("/", async (req,res) =>
 {    
