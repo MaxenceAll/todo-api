@@ -4,6 +4,7 @@ const config = require("../config");
 let db;
 async function connect() {
   if (!db) {
+    console.log("new connexion made");
     const { host, port, database, user, password } = config.db;
     db = await mysql.createConnection({
       host,
@@ -13,10 +14,12 @@ async function connect() {
       password,
     });
   }
+  
   return db;
 }
 
 async function query(sql, params = []) {
+  console.log("query method called")
   const connection = await connect();
   // const [rows] = await connection.execute(sql);
   const statement = await connection.prepare(sql);
@@ -25,6 +28,7 @@ async function query(sql, params = []) {
 }
 
 async function selectAll(table) {
+  console.log("selectAll method called")
   const sql = `SELECT * FROM ${table} WHERE is_deleted = ?`;
   let resp;
   await query(sql, [0])
@@ -42,6 +46,7 @@ async function selectAll(table) {
 }
 
 async function selectOne(table, id) {
+  console.log("selectOne method called")
   const sql = `SELECT * FROM ${table} WHERE is_deleted = ? AND id = ?`;
   let resp;
   await query(sql, [0, id])
@@ -60,6 +65,7 @@ async function selectOne(table, id) {
 }
 
 async function createOne(table, body) {
+  console.log("createOne method called")
   // for (const key in body) {
   //   if (typeof body[key] == "string")
   //     body[key] = body[key].replace(/'/g, "\\'");
@@ -94,6 +100,7 @@ async function createOne(table, body) {
 }
 
 async function updateOne(table, id, body) {
+  console.log("updateOne method called")
     for (const key in body) {
         if (key == "is_deleted") delete body[key];
     
@@ -135,6 +142,7 @@ async function updateOne(table, id, body) {
 }
 
 async function softDeleteOne(table, id) {
+  console.log("softDeleteOne method called")
     const sqlUpdate = `UPDATE ${table} SET is_deleted = ? WHERE is_deleted = ? AND id = ?`;
     let resp;
     await query(sqlUpdate, [1, 0, id])
@@ -160,6 +168,7 @@ async function softDeleteOne(table, id) {
 }
 
 async function hardDeleteOne(table, id) {
+  console.log("hardDeleteOne method called")
     const sqlDelete = `DELETE FROM ${table} WHERE id = ?`;
     let resp;
     await query(sqlDelete, [id])

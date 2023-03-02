@@ -1,27 +1,33 @@
 const express = require("express");
 const dbRouter = express.Router();
 const dbService = require("../services/database.service");
+// console.log(dbService);
 
 dbRouter.all("*", async (req, res, next ) => {
-  const table = req.params[0].replace(/^\/+/, '').replace(/\/+$/, '').split('/'[0]);
+  console.log("all route taken");
+  const table = req.params[0].replace(/^\/+/, '').replace(/\/+$/, '').split('/')[0];
+  console.log("table selected :",table);
   if (global.tables.includes(table)){
     next();
   }
   else{
-    res.status(400).json( {data: null, result: false, message: "Bad request" })
+    res.status(400).json( {data: null, result: false, message: "Bad request wrong table ?" })
   }
 })
 
+
 dbRouter.get("/:table", async (req, res) => {
+  console.log("get table route taken");
     const { table } = req.params;
     const dbResp = await dbService.selectAll(table);
     res.status(dbResp?.result ? 200 : 400).json(dbResp);
   });
   
   dbRouter.get("/:table/:id", async (req, res) => {
+    console.log("get table+id route taken");
     const { table, id } = req.params;
     const sql = `SELECT * FROM ${table} WHERE is_deleted = 0 AND id = ${id}`;
-    await query(sql)
+    await dbService.query(sql)
       .then((data) => {
         data = data.length == 1 ? data.pop() : null;
         const result = data != null;
@@ -45,11 +51,11 @@ dbRouter.get("/:table", async (req, res) => {
     const keys = Object.keys(body).join(",");
     const values = "'" + Object.values(body).join("','") + "'";
     const sqlInsert = `INSERT INTO ${table} ( ${keys} ) VALUES ( ${values} )`;
-    await query(sqlInsert)
+    await dbService.query(sqlInsert)
       .then((insertResult) => {
         const { insertId } = insertResult;
         const sqlSelect = `SELECT * FROM ${table} WHERE is_deleted = 0 AND id = ${insertId}`;
-        query(sqlSelect)
+        dbService.query(sqlSelect)
           .then((data) => {
             data = data.length == 1 ? data.pop() : null;
             const result = data != null && insertResult.affectedRows == 1;
@@ -84,10 +90,10 @@ dbRouter.get("/:table", async (req, res) => {
       })
       .join(",");
     const sqlUpdate = `UPDATE ${table} SET ${values} WHERE is_deleted = 0 AND id = ${id}`;
-    await query(sqlUpdate)
+    await dbService.query(sqlUpdate)
       .then((updateResult) => {
         const sqlSelect = `SELECT * FROM ${table} WHERE is_deleted = 0 AND id = ${id}`;
-        query(sqlSelect)
+        dbService.query(sqlSelect)
           .then((data) => {
             data = data.length == 1 ? data.pop() : null;
             const result = data != null && updateResult.affectedRows == 1;
@@ -108,10 +114,10 @@ dbRouter.get("/:table", async (req, res) => {
   dbRouter.patch("/:table/:id", async (req, res) => {
     const { table, id } = req.params;
     const sqlUpdate = `UPDATE ${table} SET is_deleted = 1 WHERE is_deleted = 0 AND id = ${id}`;
-    await query(sqlUpdate)
+    await dbService.query(sqlUpdate)
       .then((updateResult) => {
         const sqlSelect = `SELECT * FROM ${table} WHERE is_deleted = 1 AND id = ${id}`;
-        query(sqlSelect)
+        dbService.query(sqlSelect)
           .then((data) => {
             data = data.length == 1 ? data.pop() : null;
             const result = data != null && updateResult.affectedRows == 1;
@@ -132,10 +138,10 @@ dbRouter.get("/:table", async (req, res) => {
   dbRouter.delete("/:table/:id", async (req, res) => {
     const { table, id } = req.params;
     const sqlDelete = `DELETE FROM ${table} WHERE id = ${id}`;
-    await query(sqlDelete)
+    await dbService.query(sqlDelete)
       .then((deleteResult) => {
         const sqlSelect = `SELECT * FROM ${table} WHERE id = ${id}`;
-        query(sqlSelect)
+        dbService.query(sqlSelect)
           .then((data) => {
             const result = data.length == 0 && deleteResult.affectedRows == 1;
             const message =
@@ -153,3 +159,4 @@ dbRouter.get("/:table", async (req, res) => {
   });
 
 module.exports = dbRouter;
+
