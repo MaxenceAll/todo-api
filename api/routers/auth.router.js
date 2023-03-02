@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const config = require("../config");
 const jwt = require("jsonwebtoken");
 
+//TODO GET/auth et POST/login
 authRouter.get("/auth", async (req, res) => {
   const authCookie = req?.cookies?.auth;
   try {

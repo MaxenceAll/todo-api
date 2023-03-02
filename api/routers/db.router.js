@@ -2,26 +2,23 @@ const express = require("express");
 const dbRouter = express.Router();
 const dbService = require("../services/database.service");
 
+dbRouter.all("*", async (req, res, next ) => {
+  const table = req.params[0].replace(/^\/+/, '').replace(/\/+$/, '').split('/'[0]);
+  if (global.tables.includes(table)){
+    next();
+  }
+  else{
+    res.status(400).json( {data: null, result: false, message: "Bad request" })
+  }
+})
+
 dbRouter.get("/:table", async (req, res) => {
     const { table } = req.params;
     const dbResp = await dbService.selectAll(table);
     res.status(dbResp?.result ? 200 : 400).json(dbResp);
-    // const sql = `SELECT * FROM ${table} WHERE is_deleted = 0`;
-    // await query(sql)
-    //   .then((data) => {
-    //     res.json({
-    //       data,
-    //       result: true,
-    //       message: `all rows of table ${table} have been selected`,
-    //     });
-    //   })
-    //   .catch((err) => {
-    //     res.json({ data: null, result: false, message: err.message });
-    //   });
   });
   
   dbRouter.get("/:table/:id", async (req, res) => {
-    //TODO 
     const { table, id } = req.params;
     const sql = `SELECT * FROM ${table} WHERE is_deleted = 0 AND id = ${id}`;
     await query(sql)
@@ -39,7 +36,6 @@ dbRouter.get("/:table", async (req, res) => {
   });
   
   dbRouter.post("/:table", async (req, res) => {
-    //TODO 
     const { table } = req.params;
     const { body } = req;
     for (const key in body) {
@@ -72,7 +68,6 @@ dbRouter.get("/:table", async (req, res) => {
   });
   
   dbRouter.put("/:table/:id", async (req, res) => {
-    //TODO 
     const { table, id } = req.params;
     const { body } = req;
     for (const key in body) {
@@ -111,7 +106,6 @@ dbRouter.get("/:table", async (req, res) => {
   });
   
   dbRouter.patch("/:table/:id", async (req, res) => {
-    //TODO 
     const { table, id } = req.params;
     const sqlUpdate = `UPDATE ${table} SET is_deleted = 1 WHERE is_deleted = 0 AND id = ${id}`;
     await query(sqlUpdate)
@@ -136,7 +130,6 @@ dbRouter.get("/:table", async (req, res) => {
   });
   
   dbRouter.delete("/:table/:id", async (req, res) => {
-    //TODO 
     const { table, id } = req.params;
     const sqlDelete = `DELETE FROM ${table} WHERE id = ${id}`;
     await query(sqlDelete)
