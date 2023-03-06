@@ -19,7 +19,8 @@ function validateEmail(req, res, next) {
   [
     body('to').isString(),
     body('subject').isString().trim().escape(),
-    body('message').isString().trim().escape()
+    body('message').isString().trim().escape(),
+    body('html').isString().trim().escape(),
   ]
   next();
 }
@@ -46,10 +47,13 @@ mailRouter.post("/mail/test", validateEmail, async (req, res) => {
     from: EMAIL,
     to,
     subject: req.body.subject,
-    text: req.body.message
+    text: req.body.message,
+    html: req.body.html
   })
   .then(info => {
     res.status(201).json({
+      data: info,
+      result: true,
       msg: `e-mail sent to ${to}!`,
       info: info.messageId,
     });
@@ -57,7 +61,9 @@ mailRouter.post("/mail/test", validateEmail, async (req, res) => {
   .catch(error => {
     console.error(error);
     res.status(500).json({
-      msg: `failed to send email to ${to}!`,
+      data: error,
+      result: false,
+      msg: `failed to send email to ${to}!`
     });
   })
   .finally(() => {
