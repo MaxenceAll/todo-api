@@ -7,17 +7,24 @@ const jwt = require("jsonwebtoken");
 
 //TODO GET/auth et POST/login
 authRouter.get("/auth", async (req, res) => {
+    console.log("Auth router route taken")
+    
   const authCookie = req?.cookies?.auth;
+  console.log("Cookie token reçu : ",authCookie)
   try {
     if (!authCookie) {
+      console.log("BadAuth / pas de cookie")
       throw new Error("Bad Auth");
     }
     const data = jwt.verify(authCookie, config.token.secret);
     if (!data) {
+      console.log("BadAuth / pas de data")
       throw new Error("Bad Auth");
     }
+    console.log("Auth ok ok !")
     res.json({ data, result: true, message: `Auth OK` });
   } catch {
+    console.log("BadAuth / error catched")
     res.json({ data: null, result: false, message: `Bad Auth` });
   }
 });

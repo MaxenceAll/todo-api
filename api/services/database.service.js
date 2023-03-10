@@ -13,8 +13,7 @@ async function connect() {
       user,
       password,
     });
-  }
-  
+  }  
   return db;
 }
 
@@ -24,6 +23,7 @@ async function query(sql, params = []) {
   // const [rows] = await connection.execute(sql);
   const statement = await connection.prepare(sql);
   const [rows] = await statement.execute(params);
+  console.log("sql:",sql)
   return rows;
 }
 

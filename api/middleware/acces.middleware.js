@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 
 accesMiddleware.all("*", async (req, res, next) => {
     const authorization = req?.header?.authorization;
+    console.log(authorization)
     try{
         if (!authorization){
             throw new Error ("Bad API key");

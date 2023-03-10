@@ -1,14 +1,26 @@
+// Import du framework express:
 const express = require("express");
 const app = express();
 
+// Import de Cors pour pouvoir recevoir les json d'ailleurs:
 const cors = require("cors");
-app.use(cors({ origin: ["http://localhost:3000"], credentials: true }));
+// le cross origin provient de : (voir origin)
+app.use(cors(
+  { 
+    origin: ["http://localhost:3000"],
+    credentials: true
+  }
+));
 
+// On autorise notre app express l'utilisation de json:
 app.use(express.json());
 
+// Import de cookieParser
 const cookieParser = require("cookie-parser");
+// on l'ajoute à notre app
 app.use(cookieParser());
 
+// Import de la method query (on lui donne du SQL elle donne une resp)
 const { query } = require("./api/services/database.service");
 
 //IIFE
@@ -20,12 +32,12 @@ const { query } = require("./api/services/database.service");
   console.log("All tables dispo", tables)
 })();
 
-// const accesMiddleware = require('./api/middlewares/acces.middleware')
+
+// const accesMiddleware = require('./api/middleware/acces.middleware')
 // app.use(accesMiddleware);
 
-// const authRouter = require('./api/routers/auth.router');
-// app.use(authRouter);
-
+const authRouter = require('./api/routers/auth.router');
+app.use(authRouter);
 
 const mailRouter = require('./api/routers/mail.router');
 app.use(mailRouter);
