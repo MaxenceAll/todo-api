@@ -19,6 +19,15 @@ const config = {
         authorization:{
             secret: "pf[cX]RnE7!.2uNj/hkaPzfC./jMKIIn",
             keys: ["!Ml_MOAUG8X)kTkbkuF6]JkyRAO/SD-K"]
+        },
+        mail:{
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
+            auth: {
+                user: "maxtestnodejs@gmail.com",
+                pass: 'uogifvkvhxaodzmy'
+            },
         }
     },
 

@@ -1,3 +1,4 @@
+// ici ma version pour mailer
 const express = require("express");
 const mailRouter = express.Router();
 const nodemailer = require('nodemailer');
