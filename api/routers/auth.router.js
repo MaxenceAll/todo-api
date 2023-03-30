@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const config = require("../config");
 const jwt = require("jsonwebtoken");
 const mailer = require("../services/mailer.service");
+const { v4: uuidv4 } = require('uuid');
 
 
 authRouter.get("/auth", async (req, res) => {
@@ -73,7 +74,8 @@ authRouter.post("/renew", async (req, res) => {
         const { id, email } = user;
         const data = { id, email };
         const token = jwt.sign(data, config.token.secret);
-        const html = `Pour renouveler votre mot de passe, cliquez sur ce lien <a href="http://localhost:3000/reset?t=${token}">Nouveau mot de passe</a>`;
+        // const html = `Pour renouveler votre mot de passe, cliquez sur ce lien <a href="http:/localhost:3000/reset?t=${token}">Nouveau mot de passe</a>`;
+        const html = `Pour renouveler votre mot de passe, cliquez sur ce lien <a href="http:/localhost:5173/reset?t=${token}">Nouveau mot de passe</a>`;
         const mailParams = {
           to: email,
           subject: "Nouveau mot de passe demandé",
@@ -109,6 +111,7 @@ authRouter.post("/reset", async (req, res) => {
     const pincode = hash.replace(config.hash.prefix, "");
     const dbResp = await updateOne("customer", data.id, { pincode });
     res.json({ result: dbResp.result });
+    console.log("password changed")
   } catch (error) {
     console.error(error);
     res.json({ data: null, result: false, message: error.message });
@@ -122,21 +125,18 @@ authRouter.post("/signup", async (req, res) => {
   try {
     const hash = bcrypt.hashSync(body.pincode, 8);
     const pincode = hash.replace(config.hash.prefix, "");
-    const bodyObj = { email: body.email, pincode: pincode };
     const dbResp = await createOne("customer", bodyObj);
+    const emailVerificationToken = uuid.v4(); // Generate unique token
+    const bodyObj = { email: body.email, pincode: pincode, emailVerificationToken: emailVerificationToken };
+
 
     const data = { email: body.email };
     const token = jwt.sign(data, config.token.secret);
     res.json({ data, result: dbResp.result, message: dbResp.message, token });
-
-    // res.json({ result: dbResp.result });
   } catch (err) {
     res.json({ data: null, result: false, message: err.message });
   }
 });
-
-
-
 
 
 

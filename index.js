@@ -33,8 +33,8 @@ const { query } = require("./api/services/database.service");
 })();
 
 
-// const accesMiddleware = require('./api/middleware/acces.middleware')
-// app.use(accesMiddleware);
+const accesMiddleware = require('./api/middleware/acces.middleware')
+app.use(accesMiddleware);
 
 const authRouter = require('./api/routers/auth.router');
 app.use(authRouter);

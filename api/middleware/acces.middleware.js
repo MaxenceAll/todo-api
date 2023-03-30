@@ -4,7 +4,10 @@ const config = require("../config");
 const jwt = require("jsonwebtoken");
 
 accesMiddleware.all("*", async (req, res, next) => {
-    const authorization = req?.header?.authorization;
+    console.log("middleware api access route taken")
+
+    console.log(req.headers)
+    const authorization = req.headers.authorization;
     console.log(authorization)
     try{
         if (!authorization){
