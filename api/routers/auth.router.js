@@ -1,12 +1,12 @@
 const express = require("express");
 const authRouter = express.Router();
-const { query, updateOne } = require("../services/database.service");
+const { query, updateOne , createOne } = require("../services/database.service");
 const bcrypt = require("bcrypt");
 const config = require("../config");
 const jwt = require("jsonwebtoken");
 const mailer = require("../services/mailer.service");
 
-//TODO GET/auth et POST/login
+
 authRouter.get("/auth", async (req, res) => {
   console.log("Auth router route taken");
 
@@ -33,6 +33,7 @@ authRouter.get("/auth", async (req, res) => {
 authRouter.post("/login", async (req, res) => {
   console.log("Login route taken");
   const { body } = req;
+  console.log(body)
   const sql = `SELECT * FROM customer 
                   WHERE is_deleted = 0 
                   AND email = '${body.email}'`;
@@ -40,19 +41,20 @@ authRouter.post("/login", async (req, res) => {
     .then(async (json) => {
       const user = json.length === 1 ? json.pop() : null;
       if (user) {
+        console.log("user found")
         const pincodesMatch = await bcrypt.compare(
           body.pincode,
           config.hash.prefix + user.pincode
         );
         if (!pincodesMatch) {
-          throw new Error("Bad Login");
+          throw new Error("Bad Login 1");
         }
         const { id, email } = user;
         const data = { id, email };
         const token = jwt.sign(data, config.token.secret);
         res.json({ data, result: true, message: `Login OK`, token });
       } else {
-        throw new Error("Bad Login");
+        throw new Error("Bad Login 2");
       }
     })
     .catch((err) => {
@@ -112,6 +114,30 @@ authRouter.post("/reset", async (req, res) => {
     res.json({ data: null, result: false, message: error.message });
   }
 });
+
+
+authRouter.post("/signup", async (req, res) => {
+  console.log("Signup route taken");
+  const { body } = req;
+  try {
+    const hash = bcrypt.hashSync(body.pincode, 8);
+    const pincode = hash.replace(config.hash.prefix, "");
+    const bodyObj = { email: body.email, pincode: pincode };
+    const dbResp = await createOne("customer", bodyObj);
+
+    const data = { email: body.email };
+    const token = jwt.sign(data, config.token.secret);
+    res.json({ data, result: dbResp.result, message: dbResp.message, token });
+
+    // res.json({ result: dbResp.result });
+  } catch (err) {
+    res.json({ data: null, result: false, message: err.message });
+  }
+});
+
+
+
+
 
 
 
