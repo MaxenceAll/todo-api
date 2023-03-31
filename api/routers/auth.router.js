@@ -142,8 +142,8 @@ authRouter.post("/signup", async (req, res) => {
 
     // Check if account already exists
     const sql = `SELECT * FROM customer 
- WHERE is_deleted = 0
- AND email = '${body.email}'`;
+                 WHERE is_deleted = 0
+                 AND email = ${mysql.escape(body.email)}`;
     const existingAccount = await query(sql);
     if (existingAccount.length > 0) {
       throw new Error("Account already exists");
@@ -153,6 +153,7 @@ authRouter.post("/signup", async (req, res) => {
     const data = { email: body.email };
     const token = jwt.sign(data, config.token.secret);
     console.log(data);
+
     // Send email to user to verify their email address
     const html = `Pour créer votre compte, vous devez le valider avant, en cliquant ici : <a href="http:/localhost:5173/verify-email?t=${emailVerificationToken}">Vérifiez votre compte.</a>`;
     const mailParams = {
@@ -160,14 +161,18 @@ authRouter.post("/signup", async (req, res) => {
       subject: "Validez votre compte TODO4000",
       html: html,
     };
-    const mailResult = await mailer.send(mailParams);
-    console.log(mailResult);
+
+    if (!existingAccount) { // Only send email if account doesn't already exist
+      const mailResult = await mailer.send(mailParams);
+      console.log(mailResult);
+    }
 
     res.json({ data, result: dbResp.result, message: dbResp.message, token });
   } catch (err) {
     res.json({ data: null, result: false, message: err.message });
   }
 });
+
 
 // WEAK TO SQL INJECTIO, FIX THIS
 authRouter.post("/verify-email", async (req, res) => {
