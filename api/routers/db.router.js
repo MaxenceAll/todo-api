@@ -183,5 +183,19 @@ dbRouter.get('/todo/table/:email', async (req, res) => {
 });
 
 
+dbRouter.get('/task/table/:email', async (req, res) => {
+  const { email } = req.params;
+  const dbResp = await dbService.selectAllTaskWithEmail(email);
+  res.status(dbResp?.result ? 200 : 400).json(dbResp);
+});
+
+dbRouter.get('/task/task/:idTodo', async (req, res) => {
+  const { idTodo } = req.params;
+  const dbResp = await dbService.selectAllTaskWithIdTodo(idTodo);
+  res.status(dbResp?.result ? 200 : 400).json(dbResp);
+});
+
+
+
 
 module.exports = dbRouter;

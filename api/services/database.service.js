@@ -218,6 +218,48 @@ async function selectAllWithIdcustomer(email) {
 }
 
 
+async function selectAllTaskWithEmail(email) {
+  console.log("Executing selectAllTaskWithEmail with email:", email);
+  const sql = `SELECT t.*, td.id_customer
+  FROM task t
+  INNER JOIN todo td ON t.id_Todo = td.id
+  INNER JOIN customer c ON td.id_customer = c.id
+  WHERE c.email = ?`;
+  let resp;
+  await query(sql, [email])
+    .then((data) => {
+      resp = {
+        data,
+        result: true,
+        message: `All tasks from ${email}`,
+      };
+    })
+    .catch((err) => {
+      resp = { data: null, result: false, message: err.message };
+    });
+  return resp;
+}
+
+async function selectAllTaskWithIdTodo(IdTodo) {
+  console.log("Executing selectAllTaskWithIdTodo with id:", IdTodo);
+  const sql = `SELECT * FROM task WHERE id_Todo = ?`;
+  let resp;
+  await query(sql, [IdTodo])
+    .then((data) => {
+      resp = {
+        data,
+        result: true,
+        message: `All tasks with id_Todo ${IdTodo}`,
+      };
+    })
+    .catch((err) => {
+      resp = { data: null, result: false, message: err.message };
+    });
+  return resp;
+}
+
+
+
 module.exports = {
   query,
   selectAll,
@@ -227,4 +269,6 @@ module.exports = {
   softDeleteOne,
   hardDeleteOne,
   selectAllWithIdcustomer,
+  selectAllTaskWithEmail,
+  selectAllTaskWithIdTodo,
 };
