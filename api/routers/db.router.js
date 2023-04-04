@@ -196,6 +196,4 @@ dbRouter.get('/task/task/:idTodo', async (req, res) => {
 });
 
 
-
-
 module.exports = dbRouter;

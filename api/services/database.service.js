@@ -224,7 +224,7 @@ async function selectAllTaskWithEmail(email) {
   FROM task t
   INNER JOIN todo td ON t.id_Todo = td.id
   INNER JOIN customer c ON td.id_customer = c.id
-  WHERE c.email = ?`;
+  WHERE c.email = ? AND t.is_deleted = 0`;
   let resp;
   await query(sql, [email])
     .then((data) => {
@@ -242,7 +242,7 @@ async function selectAllTaskWithEmail(email) {
 
 async function selectAllTaskWithIdTodo(IdTodo) {
   console.log("Executing selectAllTaskWithIdTodo with id:", IdTodo);
-  const sql = `SELECT * FROM task WHERE id_Todo = ?`;
+  const sql = `SELECT * FROM task WHERE id_Todo = ? AND is_deleted = 0`;
   let resp;
   await query(sql, [IdTodo])
     .then((data) => {
