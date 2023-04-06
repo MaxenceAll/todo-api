@@ -8,6 +8,8 @@ const mailer = require("../services/mailer.service");
 const { v4: uuid } = require("uuid");
 const { escape } = require("mysql2");
 
+const mysql = require('mysql2');
+
 authRouter.get("/auth", async (req, res) => {
   console.log("Auth router route taken");
 
@@ -126,7 +128,7 @@ authRouter.post("/reset", async (req, res) => {
 
 authRouter.post("/signup", async (req, res) => {
   console.log("Signup route taken");
-  const { body } = req;
+  const { body } = req;  
   console.log(body);
   try {
     const hash = bcrypt.hashSync(body.pincode, 8);
@@ -162,10 +164,10 @@ authRouter.post("/signup", async (req, res) => {
       html: html,
     };
 
-    if (!existingAccount) { // Only send email if account doesn't already exist
+    // if (!existingAccount) { // Only send email if account doesn't already exist
       const mailResult = await mailer.send(mailParams);
       console.log(mailResult);
-    }
+    // }
 
     res.json({ data, result: dbResp.result, message: dbResp.message, token });
   } catch (err) {
@@ -200,7 +202,6 @@ authRouter.post("/verify-email", async (req, res) => {
       emailVerificationToken: null,
     });
     res.json({ result: dbResp.result, message: dbResp.message }); // NOT POSSIBLE TO SEND 2 RES
-
     // res.redirect("/success"); // Redirect user to success page
   } catch (error) {
     console.error(error);

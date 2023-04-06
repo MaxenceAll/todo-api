@@ -68,7 +68,6 @@ mailRouter.post("/mail/test", validateEmail, async (req, res) => {
     });
   })
   .finally(() => {
-    // close the transporter after sending the email
     transporter.close();
   });
 });
