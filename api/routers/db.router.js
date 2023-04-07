@@ -23,6 +23,20 @@ dbRouter.all("*", async (req, res, next) => {
   }
 });
 
+
+
+// moved top get catch first this when..
+dbRouter.get('/customer', async (req, res) => {
+  console.log("get all customers route taken");
+  const dbResp = await dbService.selectAll("customer");
+  res.status(dbResp?.result ? 200 : 400).json(dbResp);
+});
+
+
+
+
+
+
 dbRouter.get("/:table", async (req, res) => {
   console.log("get table route taken");
   const { table } = req.params;
@@ -194,6 +208,17 @@ dbRouter.get('/task/task/:idTodo', async (req, res) => {
   const dbResp = await dbService.selectAllTaskWithIdTodo(idTodo);
   res.status(dbResp?.result ? 200 : 400).json(dbResp);
 });
+
+
+dbRouter.get('/customer/admin/:email', async (req, res) => {
+  const { email } = req.params;
+  const dbResp = await dbService.checkIfAdmin(email);
+  res.status(dbResp?.result ? 200 : 400).json(dbResp);
+});
+
+
+
+
 
 
 module.exports = dbRouter;

@@ -14,7 +14,7 @@ authRouter.get("/auth", async (req, res) => {
   console.log("Auth router route taken");
 
   const authCookie = req?.cookies?.auth;
-  console.log("Cookie token reçu : ", authCookie);
+  // console.log("Cookie token reçu : ", authCookie);
   try {
     if (!authCookie) {
       console.log("BadAuth / pas de cookie");

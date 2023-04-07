@@ -8,7 +8,7 @@ accesMiddleware.all("*", async (req, res, next) => {
 
     // console.log(req.headers)
     const authorization = req.headers.authorization;
-    console.log("token auth reçu is :",authorization)
+    // console.log("token auth reçu is :",authorization)
     try{
         if (!authorization){
             throw new Error ("Bad API key");

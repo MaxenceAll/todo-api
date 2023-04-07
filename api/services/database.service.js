@@ -258,6 +258,35 @@ async function selectAllTaskWithIdTodo(IdTodo) {
   return resp;
 }
 
+async function checkIfAdmin(email) {
+  console.log("Executing checkIfAdmin with email:", email);
+  const sql = `SELECT * FROM customer WHERE email = ? AND is_admin = 1`;
+  let resp;
+  await query(sql, [email])
+    .then((data) => {
+      if (data.length > 0) {
+        resp = {
+          data,
+          result: true,
+          message: `User ${email} IS AN ADMIN`,
+        };
+      } else {
+        resp = {
+          data,
+          result: false,
+          message: `User ${email} is not an admin`,
+        };
+      }
+    })
+    .catch((err) => {
+      resp = { data: null, result: false, message: err.message };
+    });
+  return resp;
+}
+
+
+
+
 
 
 module.exports = {
@@ -271,4 +300,5 @@ module.exports = {
   selectAllWithIdcustomer,
   selectAllTaskWithEmail,
   selectAllTaskWithIdTodo,
+  checkIfAdmin,
 };
