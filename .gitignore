@@ -1,3 +1,4 @@
 /node_modules
 /gmailCFG.js
 /api/config.js
+/api/customer/*

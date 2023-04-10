@@ -21,6 +21,7 @@ dbRouter.all("*", async (req, res, next) => {
         message: "Bad request wrong table ?",
       });
   }
+  // next();
 });
 
 

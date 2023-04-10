@@ -11,10 +11,7 @@ router.use(express.urlencoded({ extended: true }));
 // Set up Multer middleware for handling file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const userId = req.body.userId;
-    if (!userId) {
-        userId = 'unknown';
-      }
+    let userId = req.body.userId || 'unknown';
     const folderPath = path.join(__dirname, "../customer/uploads", userId);
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
@@ -27,8 +24,13 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+
+// Serve images from the uploads directory
+router.use('/uploads', express.static(path.join(__dirname, "../customer/uploads")));
+
 // Handle POST requests to /customer/uploads
 router.post("/customer/uploads", upload.single("image"), (req, res) => {
+    console.log("ROUTE Upload POST taken !");
   try {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
@@ -41,11 +43,12 @@ router.post("/customer/uploads", upload.single("image"), (req, res) => {
   }
 });
 
-
-  router.get("/uploads/:userId", (req, res) => {
+// Handle GET requests to /uploads/:userId
+router.get("/uploads/:userId", (req, res) => {
     console.log("ROUTE Upload GET taken !");
     const userId = req.params.userId;
-    const directoryPath = path.join(__dirname, `../uploads/${userId}`);
+    console.log("here is the userid caught:",userId)
+    const directoryPath = path.join(__dirname, `../customer/uploads/${userId}`);
     let files = [];
     try {
       files = fs.readdirSync(directoryPath);
@@ -54,9 +57,12 @@ router.post("/customer/uploads", upload.single("image"), (req, res) => {
       res.status(500).json({ error: "Error reading directory" });
       return;
     }
-    const filePaths = files.map((file) => path.join(directoryPath, file));
+    // const filePaths = files.map((file) => path.join(directoryPath, file));
+    const filePaths = files.map((file) => path.basename(file));
+    // console.log("filePaths:", filePaths);
+
     res.json(filePaths);
   });
-
+  
 
 module.exports = router;
