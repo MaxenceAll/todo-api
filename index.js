@@ -42,8 +42,13 @@ app.use(authRouter);
 const mailRouter = require('./api/routers/mail.router');
 app.use(mailRouter);
 
+const uploadRouter = require('./api/routers/upload.router');
+app.use(uploadRouter);
+
 const dbRouter = require('./api/routers/db.router');
 app.use(dbRouter);
+
+
 
 const PORT = 5000;
 app.listen(PORT, () => {

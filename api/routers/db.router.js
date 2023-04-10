@@ -25,13 +25,13 @@ dbRouter.all("*", async (req, res, next) => {
 
 
 
+//  NO LONGER USED car ca renvoi la totalité des customers....
 // moved top get catch first this when..
-dbRouter.get('/customer', async (req, res) => {
-  console.log("get all customers route taken");
-  const dbResp = await dbService.selectAll("customer");
-  res.status(dbResp?.result ? 200 : 400).json(dbResp);
-});
-
+// dbRouter.get('/customer', async (req, res) => {
+//   console.log("get all customers route taken");
+//   const dbResp = await dbService.selectAll("customer");
+//   res.status(dbResp?.result ? 200 : 400).json(dbResp);
+// });
 
 
 
@@ -44,25 +44,36 @@ dbRouter.get("/:table", async (req, res) => {
   res.status(dbResp?.result ? 200 : 400).json(dbResp);
 });
 
-//TODO NOT SAFE, USE 
+
+
 dbRouter.get("/:table/:id", async (req, res) => {
   console.log("get table+id route taken");
   const { table, id } = req.params;
-  const sql = `SELECT * FROM ${table} WHERE is_deleted = 0 AND id = ${id}`;
-  await dbService
-    .query(sql)
-    .then((data) => {
-      data = data.length == 1 ? data.pop() : null;
-      const result = data != null;
-      const message =
-        (result ? `the` : `NO`) +
-        ` row of table ${table} with id=${id} has been selected`;
-      res.json({ data, result, message });
-    })
-    .catch((err) => {
-      res.json({ data: null, result: false, message: err.message });
-    });
-});
+  const dbResp = await dbService.selectOne(table, id);
+  res.status(dbResp?.result ? 200 : 400).json(dbResp);
+})
+
+
+
+//TODO NOT SAFE, USE 
+// dbRouter.get("/:table/:id", async (req, res) => {
+//   console.log("get table+id route taken");
+//   const { table, id } = req.params;
+//   const sql = `SELECT * FROM ${table} WHERE is_deleted = 0 AND id = ${id}`;
+//   await dbService
+//     .query(sql)
+//     .then((data) => {
+//       data = data.length == 1 ? data.pop() : null;
+//       const result = data != null;
+//       const message =
+//         (result ? `the` : `NO`) +
+//         ` row of table ${table} with id=${id} has been selected`;
+//       res.json({ data, result, message });
+//     })
+//     .catch((err) => {
+//       res.json({ data: null, result: false, message: err.message });
+//     });
+// });
 
 dbRouter.post("/:table", async (req, res) => {
   const { table } = req.params;
@@ -215,8 +226,6 @@ dbRouter.get('/customer/admin/:email', async (req, res) => {
   const dbResp = await dbService.checkIfAdmin(email);
   res.status(dbResp?.result ? 200 : 400).json(dbResp);
 });
-
-
 
 
 

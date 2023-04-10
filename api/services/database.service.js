@@ -266,14 +266,14 @@ async function checkIfAdmin(email) {
     .then((data) => {
       if (data.length > 0) {
         resp = {
-          data,
+          data:  1,
           result: true,
           message: `User ${email} IS AN ADMIN`,
         };
       } else {
         resp = {
-          data,
-          result: false,
+          data : 0,
+          result: true,
           message: `User ${email} is not an admin`,
         };
       }
@@ -283,7 +283,6 @@ async function checkIfAdmin(email) {
     });
   return resp;
 }
-
 
 
 
