@@ -10,21 +10,28 @@ dbRouter.all("*", async (req, res, next) => {
     .replace(/\/+$/, "")
     .split("/")[0];
   console.log("table selected :", table);
-  if (global.tables.includes(table)) {
+  if (table) {
     next();
   } else {
-    res
-      .status(400)
-      .json({
-        data: null,
-        result: false,
-        message: "Bad request wrong table ?",
-      });
+    res.status(400).json({
+      data: null,
+      result: false,
+      message: "Bad request: missing table name",
+    });
   }
+  // if (global.tables.includes(table)) {
+  //   next();
+  // } else {
+  //   res
+  //     .status(400)
+  //     .json({
+  //       data: null,
+  //       result: false,
+  //       message: "Bad request wrong table ?",
+  //     });
+  // }
   // next();
 });
-
-
 
 //  NO LONGER USED car ca renvoi la totalité des customers....
 // moved top get catch first this when..
@@ -34,10 +41,6 @@ dbRouter.all("*", async (req, res, next) => {
 //   res.status(dbResp?.result ? 200 : 400).json(dbResp);
 // });
 
-
-
-
-
 dbRouter.get("/:table", async (req, res) => {
   console.log("get table route taken");
   const { table } = req.params;
@@ -45,18 +48,14 @@ dbRouter.get("/:table", async (req, res) => {
   res.status(dbResp?.result ? 200 : 400).json(dbResp);
 });
 
-
-
 dbRouter.get("/:table/:id", async (req, res) => {
   console.log("get table+id route taken");
   const { table, id } = req.params;
   const dbResp = await dbService.selectOne(table, id);
   res.status(dbResp?.result ? 200 : 400).json(dbResp);
-})
+});
 
-
-
-//TODO NOT SAFE, USE 
+//TODO NOT SAFE, USE
 // dbRouter.get("/:table/:id", async (req, res) => {
 //   console.log("get table+id route taken");
 //   const { table, id } = req.params;
@@ -111,15 +110,20 @@ dbRouter.post("/:table", async (req, res) => {
 });
 
 dbRouter.put("/:table/:id", async (req, res) => {
+  console.log("dbRouter.put called with this req.body", req.body);
   const { table, id } = req.params;
+  console.log("dbRouter, with id = ",id)
+  console.log("dbRouter, with table = ",table)
   const { body } = req;
   for (const key in body) {
     if (key == "is_deleted") delete body[key];
 
-    if (typeof body[key] == "string")
+    if (typeof body[key] == "string") {
       body[key] = body[key].replace(/'/g, "\\'");
+    }
   }
   const entries = Object.entries(body);
+  console.log("entries are :", entries)
   const values = entries
     .map((entry) => {
       const [key, value] = entry;
@@ -127,10 +131,12 @@ dbRouter.put("/:table/:id", async (req, res) => {
     })
     .join(",");
   const sqlUpdate = `UPDATE ${table} SET ${values} WHERE is_deleted = 0 AND id = ${id}`;
+  console.log("trying this sql to update:", sqlUpdate)
   await dbService
     .query(sqlUpdate)
     .then((updateResult) => {
       const sqlSelect = `SELECT * FROM ${table} WHERE is_deleted = 0 AND id = ${id}`;
+      console.log("le sqlSelect après l'update est :",sqlSelect)
       dbService
         .query(sqlSelect)
         .then((data) => {
@@ -142,10 +148,12 @@ dbRouter.put("/:table/:id", async (req, res) => {
           res.json({ data, result, message });
         })
         .catch((err) => {
+          console.log("this error")
           res.json({ data: null, result: false, message: err.message });
         });
     })
     .catch((err) => {
+      console.log("this error 2 :",err)
       res.json({ data: null, result: false, message: err.message });
     });
 });
@@ -201,34 +209,28 @@ dbRouter.delete("/:table/:id", async (req, res) => {
     });
 });
 
-
-dbRouter.get('/todo/table/:email', async (req, res) => {
-  const { email} = req.params;
+dbRouter.get("/todo/table/:email", async (req, res) => {
+  const { email } = req.params;
   const dbResp = await dbService.selectAllWithIdcustomer(email);
   res.status(dbResp?.result ? 200 : 400).json(dbResp);
 });
 
-
-dbRouter.get('/task/table/:email', async (req, res) => {
+dbRouter.get("/task/table/:email", async (req, res) => {
   const { email } = req.params;
   const dbResp = await dbService.selectAllTaskWithEmail(email);
   res.status(dbResp?.result ? 200 : 400).json(dbResp);
 });
 
-dbRouter.get('/task/task/:idTodo', async (req, res) => {
+dbRouter.get("/task/task/:idTodo", async (req, res) => {
   const { idTodo } = req.params;
   const dbResp = await dbService.selectAllTaskWithIdTodo(idTodo);
   res.status(dbResp?.result ? 200 : 400).json(dbResp);
 });
 
-
-dbRouter.get('/customer/admin/:email', async (req, res) => {
+dbRouter.get("/customer/admin/:email", async (req, res) => {
   const { email } = req.params;
   const dbResp = await dbService.checkIfAdmin(email);
   res.status(dbResp?.result ? 200 : 400).json(dbResp);
 });
-
-
-
 
 module.exports = dbRouter;
