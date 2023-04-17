@@ -8,7 +8,7 @@ const mailer = require("../services/mailer.service");
 const { v4: uuid } = require("uuid");
 const { escape } = require("mysql2");
 
-const mysql = require('mysql2');
+const mysql = require("mysql2");
 
 authRouter.get("/auth", async (req, res) => {
   console.log("Auth router route taken");
@@ -28,7 +28,7 @@ authRouter.get("/auth", async (req, res) => {
     console.log("Auth ok ok !");
     res.json({ data, result: true, message: `Auth OK` });
   } catch {
-    console.log("BadAuth / error catched");
+    console.log("BadAuth / error caught");
     res.json({ data: null, result: false, message: `Bad Auth` });
   }
 });
@@ -128,7 +128,7 @@ authRouter.post("/reset", async (req, res) => {
 
 authRouter.post("/signup", async (req, res) => {
   console.log("Signup route taken");
-  const { body } = req;  
+  const { body } = req;
   console.log(body);
   try {
     const hash = bcrypt.hashSync(body.pincode, 8);
@@ -149,6 +149,8 @@ authRouter.post("/signup", async (req, res) => {
     const existingAccount = await query(sql);
     if (existingAccount.length > 0) {
       throw new Error("Account already exists");
+    }else{
+      console.log("Tentative de création du compte sur la db")
     }
 
     const dbResp = await createOne("customer", bodyObj);
@@ -163,10 +165,11 @@ authRouter.post("/signup", async (req, res) => {
       subject: "Validez votre compte TODO4000",
       html: html,
     };
-
-    // if (!existingAccount) { // Only send email if account doesn't already exist
+    console.log("yo les mail params sont :", mailParams)
+    // if (!existingAccount) {
+      // Only send email if account doesn't already exist
       const mailResult = await mailer.send(mailParams);
-      console.log(mailResult);
+      console.log("mailresult = ",mailResult);
     // }
 
     res.json({ data, result: dbResp.result, message: dbResp.message, token });
@@ -174,7 +177,6 @@ authRouter.post("/signup", async (req, res) => {
     res.json({ data: null, result: false, message: err.message });
   }
 });
-
 
 // WEAK TO SQL INJECTIO, FIX THIS
 authRouter.post("/verify-email", async (req, res) => {

@@ -26,7 +26,7 @@ const config = {
             secure: false,
             auth: {
                 user: "maxtestnodejs@gmail.com",
-                pass: 'uogifvkvhxaodzmy'
+                pass: 'poevpzgbtwujayrb'
             },
         }
     },

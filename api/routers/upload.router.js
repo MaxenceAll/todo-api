@@ -31,7 +31,7 @@ router.use(
 );
 
 // Handle POST requests to /customer/uploads
-router.post("/customer/uploads", upload.single("image"), (req, res) => {
+router.post("/customer/uploads", upload.single("image"), (req, res, next) => {
   console.log("ROUTE Upload POST taken !");
   try {
     if (!req.file) {
